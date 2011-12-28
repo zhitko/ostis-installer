@@ -3,12 +3,18 @@
  
 !define srcdir "src"
 
-!define SrcSysPath "${srcdir}\system"
-!define SrcPyPath "${srcdir}\Python2.6.2c1"
-!define SrcScCorePath "${srcdir}\sc-core"
-!define Src7ZipPath "${srcdir}\7zip"
-!define SrcSvnPath "${srcdir}\svn"
-!define SrcSuitPath "${srcdir}\suit"
+!define SrcSysPath "system"
+!define SrcPyPath "Python2.6.2c1"
+!define SrcScCorePath "sc-core"
+!define Src7ZipPath "7zip"
+!define SrcSvnPath "svn"
+!define SrcSuitPath "suit"
+!define SrcSSRLabPath "SSRLab"
+
+!define SrcSysScript "start.bat"
+!define SrcPackScript "pack.bat"
+!define SrcUnpackScript "unpack.bat"
+!define SrcUpdateScript "update_and_install.bat"
 
 !define company "OSTIS"
 !define prodname "Intelegent Question Answering System"
@@ -86,10 +92,16 @@
 Section "IQA System (required)" SecSystem
 
   SetOutPath "$INSTDIR"
-  
-  ;ADD YOUR OWN FILES HERE...
-	File "${srcdir}\${helpfile}"
 	
+	File "${srcdir}\${helpfile}"
+	File "${srcdir}\${licensefile}"
+	File "${srcdir}\${SrcSysScript}"
+	
+	SetOutPath "$INSTDIR\${SrcSysPath}"
+	
+	File /r "${srcdir}\${SrcSysPath}\*.*"
+	
+	;Create shortcuts in menu
 	!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 		;Create shortcuts
 		CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
@@ -98,7 +110,7 @@ Section "IQA System (required)" SecSystem
   !insertmacro MUI_STARTMENU_WRITE_END
   
   ;Store installation folder
-  WriteRegStr ${regroot} ${regkey} "" $INSTDIR
+  WriteRegStr ${regroot} ${regkey} "INSTDIR" $INSTDIR
   
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -108,27 +120,61 @@ SectionEnd
 ;Python Section
 Section "Python 2.6.2c1" SecPy
 
-  SetOutPath "$INSTDIR"
-  
-  ;ADD YOUR OWN FILES HERE...
+	SetOutPath "$INSTDIR\${SrcPyPath}"
+	
+	File /r "${srcdir}\${SrcPyPath}\*.*"
 
 SectionEnd
 
 ;SC-Core Section
 Section "sc-core" SecSc
 
-  SetOutPath "$INSTDIR"
-  
-  ;ADD YOUR OWN FILES HERE...
+	SetOutPath "$INSTDIR\${SrcScCorePath}"
+	
+	File /r "${srcdir}\${SrcScCorePath}\*.*"
 
 SectionEnd
 
 ;SSRLab Section
 Section "SSRLab" SecSSRLab
 
-  SetOutPath "$INSTDIR"
-  
-  ;ADD YOUR OWN FILES HERE...
+	SetOutPath "$INSTDIR\${SrcSSRLabPath}"
+	
+	File /r "${srcdir}\${SrcSSRLabPath}\*.*"
+	
+	ExecWait 'regsvr32.exe /s "$INSTDIR\TTS\Langs\Russian\LingModRUS.dll"'
+	ExecWait 'regsvr32.exe /s "$INSTDIR\TTS\ASP.dll"'
+	
+	WriteRegStr ${regroot} "Software\SSRLab\Products" "SSRLabTTSrus" "$INSTDIR\${SrcSSRLabPath}\\TTS\\Langs\\Russian"
+	WriteRegStr ${regroot} "Software\SSRLab\Products" "SSRLabTTScore" "$INSTDIR\${SrcSSRLabPath}\\TTS\\"
+	WriteRegStr ${regroot} "Software\SSRLab\Products" "SSRLabVoiceBoris" "$INSTDIR\${SrcSSRLabPath}\\TTS\\Voices\\Boris\\"
+	
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Languages" "0x419" "Russian"
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Languages" "0x423" "Belarusian"
+	
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Languages\Belarusian" "langcode" "00000423"
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Languages\Belarusian" "clsid" "{BDAF71A5-F319-4187-B601-E3F6178CFDCE}"
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Languages\Belarusian" "langpath" "$INSTDIR\${SrcSSRLabPath}\\TTS\\Langs\\Belarusian"
+	
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Languages\Russian" "langcode" "00000419"
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Languages\Russian" "clsid" "{BDAF71A5-F319-4187-B601-E3F6178CFDCE}"
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Languages\Russian" "langpath" "$INSTDIR\${SrcSSRLabPath}\\TTS\\Langs\\Russian"
+	
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Voices" "0x419" "Boris"
+	
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Voices\Boris" "name" "Борис Лобанов (RUS)"
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Voices\Boris" "basepath" "$INSTDIR\${SrcSSRLabPath}\\TTS\\Voices\\Boris\\"
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Voices\Boris" "gender" "00000001"
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Voices\Boris" "langcode" "00000419"
+	
+	WriteRegStr ${regroot} "Software\SSRLab\TTS\Voices\Boris\Settings" "style" "BORIS_Paint"
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Voices\Boris\Settings" "isenergy" "00000001"
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Voices\Boris\Settings" "volume" "00000064"
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Voices\Boris\Settings" "tempo" "00000064"
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Voices\Boris\Settings" "minF0" "0000004b"
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Voices\Boris\Settings" "istone" "00000001"
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Voices\Boris\Settings" "maxF0" "000000a0"
+	WriteRegDWORD ${regroot} "Software\SSRLab\TTS\Voices\Boris\Settings" "isrhythm" "00000001"
 
 SectionEnd
 
@@ -136,8 +182,13 @@ SectionEnd
 Section "7zip" Sec7Zip
 
   SetOutPath "$INSTDIR"
-  
-  ;ADD YOUR OWN FILES HERE...
+	
+	File "${srcdir}\${SrcPackScript}"
+	File "${srcdir}\${SrcUnpackScript}"
+
+	SetOutPath "$INSTDIR\${Src7ZipPath}"
+	
+	File /r "${srcdir}\${Src7ZipPath}\*.*"
 
 SectionEnd
 
@@ -145,8 +196,16 @@ SectionEnd
 Section "SVN utils" SecSVN
 
   SetOutPath "$INSTDIR"
-  
-  ;ADD YOUR OWN FILES HERE...
+	
+	File "${srcdir}\${SrcUpdateScript}"
+
+	SetOutPath "$INSTDIR\${SrcSuitPath}"
+	
+	File /r "${srcdir}\${SrcSuitPath}\*.*"
+
+	SetOutPath "$INSTDIR\${SrcSvnPath}"
+	
+	File /r "${srcdir}\${SrcSvnPath}\*.*"
 
 SectionEnd
 
@@ -190,10 +249,9 @@ Section "Uninstall"
 
   ;ADD YOUR OWN FILES HERE...
 
-  Delete "$INSTDIR\Uninstall.exe"
-	Delete "$INSTDIR\${helpfile}"
+  Delete /r "$INSTDIR\*.*"
 
-  RMDir "$INSTDIR"
+  RMDir /r "$INSTDIR"
 	
 	!insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
 		Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
