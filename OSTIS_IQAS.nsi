@@ -249,7 +249,7 @@ Section "Uninstall"
 
   ;ADD YOUR OWN FILES HERE...
 
-  Delete /r "$INSTDIR\*.*"
+  Delete "$INSTDIR\*.*"
 
   RMDir /r "$INSTDIR"
 	

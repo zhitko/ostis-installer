@@ -1,0 +1,11 @@
+*.exe
+*.log
+src/Python2.6.2c1/*
+src/SSRLab/*
+src/sc-core/*
+src/suit/*
+src/system/*
+!src/system/repo/
+src/system/repo/*
+!src/system/repo/rule_builder.py
+!src/system/repo/repoBuilder
