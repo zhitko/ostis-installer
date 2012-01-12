@@ -90,6 +90,19 @@
 
 ;Main System Section
 Section "IQA System (required)" SecSystem
+	
+	;Check if IQA System is registered on target system
+  ReadRegStr $0 ${regroot} ${regkey} "INSTDIR"
+	MessageBox MB_OK "Key Value: $0"
+  StrCmp $0 "${INSTDIR}" install_go 0
+    DetailPrint "Key Value: $0"
+    DetailPrint "IQA System already installed!"
+    DetailPrint "Setup is terminating the installation process."
+    MessageBox MB_OK "IQA System already installed!$\nSetup is terminating the installation process."
+    Quit
+ 
+  install_go:
+  ClearErrors
 
   SetOutPath "$INSTDIR"
 	
@@ -244,6 +257,17 @@ SectionEnd
 
 ;--------------------------------
 ;Uninstaller Section
+ 
+Function un.onUninstSuccess
+  HideWindow
+  MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) was successfully removed from your computer."
+FunctionEnd
+ 
+Function un.onInit
+  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
+    "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
+  Abort
+FunctionEnd
 
 Section "Uninstall"
 

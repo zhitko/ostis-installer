@@ -54,7 +54,7 @@ class SCnField:
     
     def searchComponents(self,node,article):
         pass
-    
+
     @staticmethod
     def formatIdtf(txt):
         txt = txt.strip()
@@ -102,7 +102,18 @@ class SCnFieldSpecConSyn(SCnField):
             return u"" 
          
     def translate(self):
-        conName = "$con" + gen_id()
+        #conName = "$con" + gen_id()
+        conName = "con" + "(" + self.role_attr["MainSynonim"] + ")"
+        
+        opath = os.path.join(self.article.filePath,'../')
+        f = codecs.open(opath+u"/synonims.scsy",'a',encoding="cp1251")
+        synel = "$syn" +  gen_id()
+        outstr = '//# ' + synel + u"={};\n"
+        outstr += '//# ' + synel + u'=c=/"synonim"/;\n'
+        outstr += '//# ' + '"LANG" ,"STRING", "' + conName + u'"->' + synel + ";\n\n"
+        f.write(outstr)
+        f.close()
+
         elMain  = "$el" +  gen_id()
         output =  elMain + u"={};\n" 
         output += elMain + u'=c=/"' + self.role_attr["MainSynonim"]+ u'"/;\n'
@@ -112,10 +123,11 @@ class SCnFieldSpecConSyn(SCnField):
             #output += u'\n  /"'+ self.role_attr[syn] +'"/' + self._isEnd(syn)
             el  = "$el" +  gen_id()
             output +=  el + u"={};\n" 
+            output +=  '"STRING"->' + el + u";\n" 
             output +=  el + u'=c=/"' + self.role_attr[syn] + u'"/;\n'
             elems.append(el)
 
-        output += conName + u'={\n  "oсновной_":' + elMain + u','
+        output += '"' + conName + u'"={\n  "oсновной_":' + elMain + u','
 
         for i in range(len(elems)):
             syn = "Synonim" + str(i)
@@ -123,11 +135,12 @@ class SCnFieldSpecConSyn(SCnField):
 
         
         output += u"\n};\n"
-        conName1 = conName + u'_1'
+        #conName1 = u'$' + conName + u'_1'
+        conName1 = u'$el' + gen_id() + u'_1'
         
-        output += u'"синонимы*"->'+conName+u';\n' + conName1 + u'={\n  1_:'+conName+u',\n  2_:"' + self.role_attr["MainSynonim"]+u'" \n};\n'
+        output += u'"синонимы*"->"'+conName+u'";\n' + conName1 + u'={\n  1_:"'+conName+u'",\n  2_:"' + self.role_attr["MainSynonim"]+u'" \n};\n'
         output += u'"идентификация*"->' + conName1 + u';\n'
-        output += self.addContype(conName) 
+        output += self.addContype('"'+conName+'"') 
         output += self.addContype(conName1) 
 
         return output
@@ -139,6 +152,7 @@ class SCnFieldSpecConSyn(SCnField):
         self.num += 1
     
     def searchComponents(self,node,article):
+        self.article = article 
         for child in node.parent.childs:
             if child.field[0] ==  self.__class__.__name__:
                 if child.field not in self.fields:

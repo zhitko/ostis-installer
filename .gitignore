@@ -9,3 +9,10 @@ src/system/*
 src/system/repo/*
 !src/system/repo/rule_builder.py
 !src/system/repo/repoBuilder
+!src/system/repo/fs_repo_src/
+src/system/repo/fs_repo_src/*
+!src/system/repo/fs_repo_src/seb/
+src/system/repo/fs_repo_src/seb/*
+!src/system/repo/fs_repo_src/seb/planimetry_src/
+src/system/repo/fs_repo_src/seb/planimetry_src/*
+!src/system/repo/fs_repo_src/seb/planimetry_src/bel_synonims.scsy
